@@ -11,8 +11,17 @@ class AbstractStorage(ABC):
      
      
      @classmethod
+     def sync_set_data(
+          cls,
+          callback_name: str,
+          callback_data: CallbackData
+     ) -> None:
+          ...
+          
+          
+     @classmethod
      @abstractmethod
-     async def get_data(
+     def sync_get_data(
           cls, 
           callback_name: str
      ) -> bool | CallbackData:
@@ -20,12 +29,13 @@ class AbstractStorage(ABC):
           
      
      @classmethod
-     async def set_data(
+     @abstractmethod
+     async def get_data(
           cls, 
-          callback_name: str, 
-          callback_data: CallbackData
-     ) -> None:
+          callback_name: str
+     ) -> bool | CallbackData:
           ...
+          
      
           
      @classmethod

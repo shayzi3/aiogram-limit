@@ -10,6 +10,26 @@ class MemoryStorage(AbstractStorage):
      
      
      @classmethod
+     def sync_set_data(
+          cls, 
+          callback_name: str, 
+          callback_data: CallbackData
+     ) -> None:
+          cls.storage.update(
+               {callback_name: callback_data}
+          )
+          
+          
+     @classmethod
+     def sync_get_data(
+          cls, 
+          callback_name: str
+     ) -> bool:
+          data = cls.storage.get(callback_name)
+          return True if data else False
+          
+     
+     @classmethod
      async def get_data(
           cls, 
           callback_name: str
@@ -25,15 +45,3 @@ class MemoryStorage(AbstractStorage):
           data: dict[str, datetime]
      ) -> None:
           cls.storage[callback_name].users.update(data)
-          
-          
-     @classmethod
-     async def set_data(
-          cls,
-          callback_name: str,
-          callback_data: CallbackData
-     ) -> None:
-          cls.storage.update(
-               {callback_name: callback_data}
-          )
-          

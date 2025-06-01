@@ -10,15 +10,23 @@ class RedisStorage(AbstractStorage):
           password: str = ""
      ):
           self.redis = ...
+         
+         
+     @classmethod
+     def sync_set_data(cls, callback_name, callback_data):
+          ...
           
           
+     @classmethod
+     def sync_get_data(cls, callback_name):
+          ...
+                          
+                    
      @classmethod
      async def get_data(cls, callback_name):
           ...
           
-     @classmethod
-     async def set_data(cls, callback_name, callback_data):
-          ...
+          
           
      @classmethod
      async def update_data_users(cls, callback_name, field, data):

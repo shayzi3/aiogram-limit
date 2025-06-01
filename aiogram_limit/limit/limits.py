@@ -26,21 +26,21 @@ class Limits:
           days: int = 0
      ) -> Callable[[CallbackType], CallbackType]:
           def wrapped(callback: CallbackType) -> CallbackType:
-               if callback.__name__ not in self.limits:
-                    self.storage.storage.update(
-                         {
-                              callback.__name__: CallbackData(
-                                   all_users=all_users,
-                                   expire=timedelta(
-                                        days=days,
-                                        weeks=weeks,
-                                        hours=hours,
-                                        minutes=minutes,
-                                        seconds=seconds
-                                   ),
-                                   users={}
-                              )
-                         }
+               callback_exists = self.storage.sync_get_data(callback.__name__)
+               if callback_exists is False:
+                    self.storage.sync_set_data(
+                         callback_name=callback.__name__,
+                         callback_data=CallbackData(
+                              all_users=all_users,
+                              expire=timedelta(
+                                   days=days,
+                                   weeks=weeks,
+                                   hours=hours,
+                                   minutes=minutes,
+                                   seconds=seconds
+                              ),
+                              users={}
+                         )
                     )
                return callback
           return wrapped
