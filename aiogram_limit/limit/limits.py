@@ -10,10 +10,10 @@ class Limits:
      def __init__(
           self, 
           messsage: str = "Request timeout",
-          storage: AbstractStorage = MemoryStorage
+          storage: AbstractStorage | None = None
      ):
           self.message = messsage
-          self.storage = storage
+          self.storage = storage if storage else MemoryStorage()
      
      
      def __call__(

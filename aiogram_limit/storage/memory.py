@@ -1,4 +1,5 @@
 from datetime import datetime
+from asgiref.sync import async_to_sync
 
 from .abstract_storage import AbstractStorage
 from ..schema import CallbackData
@@ -6,42 +7,41 @@ from ..schema import CallbackData
 
 
 class MemoryStorage(AbstractStorage):
-     storage: dict[str, CallbackData] = {}
+     def __init__(self):
+          self.storage: dict[str, CallbackData] = {}
      
      
-     @classmethod
-     def sync_set_data(
-          cls, 
+     @async_to_sync
+     async def sync_set_data(
+          self, 
           callback_name: str, 
           callback_data: CallbackData
      ) -> None:
-          cls.storage.update(
-               {callback_name: callback_data}
-          )
+          self.storage.update({callback_name: callback_data})
           
           
-     @classmethod
-     def sync_get_data(
-          cls, 
+     @async_to_sync
+     async def sync_get_data(
+          self, 
           callback_name: str
      ) -> bool:
-          data = cls.storage.get(callback_name)
+          data = self.storage.get(callback_name)
           return True if data else False
           
      
-     @classmethod
+     
      async def get_data(
-          cls, 
+          self, 
           callback_name: str
      ) -> bool | CallbackData:
-          data = cls.storage.get(callback_name)
+          data = self.storage.get(callback_name)
           return data if data else False
      
      
-     @classmethod
+     
      async def update_data_users(
-          cls, 
+          self, 
           callback_name: str, 
           data: dict[str, datetime]
      ) -> None:
-          cls.storage[callback_name].users.update(data)
+          self.storage[callback_name].users.update(data)

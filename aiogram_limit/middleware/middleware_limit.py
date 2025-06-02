@@ -20,11 +20,11 @@ class MiddlewareLimit(BaseMiddleware):
           event: Message, 
           data: dict[str, Any]
      ) -> Any:
-          handler = data.get("handler")
-          if handler is None:
+          handler_object = data.get("handler")
+          if handler_object is None:
                logger.warning("handler object not found in data")
                
-          callback_name: str = handler.callback.__name__
+          callback_name: str = handler_object.callback.__name__
           callback_data: CallbackData = await self.limits.storage.get_data(
                callback_name=callback_name
           )

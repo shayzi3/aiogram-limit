@@ -1,33 +1,82 @@
+from redis.asyncio.client import Redis
+from datetime import datetime
+
+from asgiref.sync import async_to_sync
+
 from .abstract_storage import AbstractStorage
+from ..schema import CallbackData
 
 
 
 class RedisStorage(AbstractStorage):
-     def __init__(
-          self,
-          host: str = "localhost",
-          port: int = 6379,
-          password: str = ""
-     ):
-          self.redis = ...
-         
-         
-     @classmethod
-     def sync_set_data(cls, callback_name, callback_data):
-          ...
+     def __init__(self, redis: Redis):
+          self.name = "aiogram_limit"
+          self.redis = redis
+        
           
+     @async_to_sync
+     async def sync_set_data(
+          self, 
+          callback_name: str, 
+          callback_data: CallbackData
+     ) -> None:
+          async with self.redis as session:
+               await session.hset(
+                    name=self.name,
+                    key=callback_name,
+                    value=callback_data.to_redis()
+               )
           
-     @classmethod
-     def sync_get_data(cls, callback_name):
-          ...
+         
+     @async_to_sync 
+     async def sync_get_data(
+          self, 
+          callback_name: str
+     ) -> CallbackData | bool:
+          async with self.redis as session:
+               data = await session.hget(
+                    name=self.name,
+                    key=callback_name
+               )
+               if data is None:
+                    return False
+          return CallbackData.from_redis(data.decode())
                           
+           
                     
-     @classmethod
-     async def get_data(cls, callback_name):
-          ...
+     async def get_data(
+          self, 
+          callback_name
+     ) -> CallbackData | bool:
+          async with self.redis as session:
+               data = await session.hget(
+                    name=self.name,
+                    key=callback_name
+               )
+               if data is None:
+                    return False
+          return CallbackData.from_redis(data.decode())
           
           
           
-     @classmethod
-     async def update_data_users(cls, callback_name, field, data):
-          ...
+     async def update_data_users(
+          self, 
+          callback_name: str, 
+          data: dict[str, datetime]
+     ) -> None:
+          async with self.redis as session:
+               redis_data = await session.hget(
+                    name=self.name,
+                    key=callback_name
+               )
+               if redis_data is None:
+                    return None
+               
+               callback_data = CallbackData.from_redis(redis_data.decode())
+               callback_data.users.update(data)
+               await session.hset(
+                    name=self.name,
+                    key=callback_name,
+                    value=callback_data.to_redis()
+               )
+               
